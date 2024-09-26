@@ -17,7 +17,7 @@ handler.setFormatter(
         "%(asctime)s 	%(levelname)s %(module)s %(message)s", json_ensure_ascii=False
     )
 )
-logging.basicConfig(level=logging.DEBUG, handlers=(handler,))
+logging.basicConfig(level=logging.INFO, handlers=(handler,))
 
 if __name__ == "__main__":
     uvicorn.run(
