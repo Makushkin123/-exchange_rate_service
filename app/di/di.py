@@ -18,9 +18,13 @@ def get_source_currency_factory() -> SourceCurrencyFactory:
     return SourceCurrencyFactory()
 
 
-def get_exchange_rate_service() -> ExchangeRateServiceProtocol:
+def get_exchange_rate_service(
+    session=Depends(db_helper.session_getter_context_manager),
+    repository=Depends(get_database_repository),
+    source_currency_factory=Depends(get_source_currency_factory),
+) -> ExchangeRateServiceProtocol:
     return ExchangeRateService(
-        session=Depends(db_helper.session_getter_context_manager()),
-        repository=Depends(get_database_repository),
-        source_currency_factory=Depends(get_source_currency_factory),
+        session=session,
+        repository=repository,
+        source_currency_factory=source_currency_factory,
     )

@@ -1,7 +1,10 @@
-from typing import Protocol
+from typing import Protocol, Optional
+
+
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql import select
 from app.models.currency import Currency
-from app.dto.dto import CurrencyDto
+from app.dto.dto import CurrencyDto, ValueNameDto
 
 
 class RepositoryProtocol(Protocol):
@@ -9,6 +12,11 @@ class RepositoryProtocol(Protocol):
     async def set_exchange_data(
         session: AsyncSession, currency: list[CurrencyDto]
     ) -> None: ...
+
+    @staticmethod
+    async def get_exchange_data_by_char_code(
+        session: AsyncSession, value: ValueNameDto
+    ) -> CurrencyDto: ...
 
 
 class DataBaseRepository:
@@ -27,3 +35,23 @@ class DataBaseRepository:
                     vunit_rate=value_rate.vunit_rate,
                 )
             )
+
+    @staticmethod
+    async def get_exchange_data_by_char_code(
+        session: AsyncSession, value: ValueNameDto
+    ) -> Optional[CurrencyDto]:
+        result = await session.execute(
+            select(Currency).where(Currency.char_code == value.char_code)
+        )
+        currency: Currency = result.scalar_one_or_none()
+        if currency is None:
+            return None
+
+        return CurrencyDto(
+            char_code=currency.char_code,
+            num_code=currency.num_code,
+            nominal=currency.nominal,
+            name=currency.name_rate,
+            value=currency.value_rate,
+            vunit_rate=currency.vunit_rate,
+        )

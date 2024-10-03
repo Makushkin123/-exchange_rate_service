@@ -1,4 +1,4 @@
-from typing import Protocol
+from typing import Protocol, Annotated
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -7,7 +7,8 @@ from app.managers.source_currency_manager import (
     SourceCurrencyManagerProtocol,
 )
 from app.repository.repository import RepositoryProtocol
-from app.dto.dto import CurrencyDto
+from app.dto.dto import CurrencyDto, ValueNameDto
+from app.service.exceptions import CharCodeNotFoundError
 
 
 class ExchangeRateServiceProtocol(Protocol):
@@ -16,6 +17,10 @@ class ExchangeRateServiceProtocol(Protocol):
     source_currency_factory: SourceCurrencyFactory
 
     async def set_exchange_rate(self, source_url: str) -> None: ...
+
+    async def get_exchange_rate_by_char_code(
+        self, value: ValueNameDto
+    ) -> CurrencyDto: ...
 
 
 class ExchangeRateService:
@@ -41,4 +46,11 @@ class ExchangeRateService:
         )
         await self.session.commit()
 
-    async def get(self): ...
+    async def get_exchange_rate_by_char_code(self, value: ValueNameDto) -> CurrencyDto:
+        currency_info_rate = await self.repository.get_exchange_data_by_char_code(
+            session=self.session, value=value
+        )
+        if currency_info_rate is None:
+            raise CharCodeNotFoundError(char_code=value.char_code)
+
+        return currency_info_rate

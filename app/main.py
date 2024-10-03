@@ -4,7 +4,7 @@ import uvicorn
 from app.create_fastapi_app import create_app
 from app.config import settings
 from pythonjsonlogger import jsonlogger
-from app.api.test import router
+from app.api.exchange_rate_view import router
 
 main_app = create_app()
 main_app.include_router(
