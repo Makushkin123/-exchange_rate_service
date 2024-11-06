@@ -12,6 +12,6 @@ class CurrencyDto(ValueNameDto):
     value: float
     vunit_rate: float
 
-    class Config:
+    class ConfigDict:
         populate_by_name = True
         from_attributes = True
